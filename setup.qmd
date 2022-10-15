@@ -1,0 +1,36 @@
+# Setup {.unnumbered}
+
+At the first step (assuming you already installed R with version higher than 4.1) we need to complete our package installation setup. 
+
+```{r,eval=FALSE}
+# pti is the list of packages to install from CRAN is 
+pti <- c("remotes","ompr.roi","ompr","highs", "ROI")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti) > 0){
+  install.packages(pti)
+}
+
+# Plus currently ROI.plugin.highs is not listed in CRAN 
+# therefore we get it from Gitlab location using remotes package
+if(!("ROI.plugin.highs"%in% installed.packages()))
+remotes::install_gitlab("roigrp/solver/roi.plugin.highs")
+```
+
+We will need
+
+```{r}
+library(ROI.plugin.highs)
+library(ompr.roi)
+library(ompr)
+```
+
+Optionally, you can get `tidyverse` and `readxl` as well for data manipulaton and reading from Excel files respectively.
+
+```{r,eval=FALSE}
+pti <- c("tidyverse","readxl")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti) > 0){
+  install.packages(pti)
+}
+```
+

@@ -1,0 +1,82 @@
+# Giapetto Example
+
+## Problem
+
+*This example is taken from Winston's Operations Research (4th Edition) Book*
+
+"Giapetto's Woodcarving, Inc., manufactures two types of wooden toys: **soldiers** and **trains**.
+
+A soldier sells for **\$27** and uses **\$10** worth of raw materials. Each soldier that is manufactured increases Giapetto's variable labor and overhead costs by **\$14**. A train sells for **\$21** and uses **\$9** worth of raw materials. Each train built increases Giapetto's variable labor and overhead costs by **\$10**.
+
+The manufacture of wooden soldiers and trains requires two types of skilled labor: **carpentry** and **finishing**. A soldier requires **2 hours** of finishing labor and **1 hour** of carpentry labor. A train requires **1 hour** of finishing labor and **1 hour** of carpentry labor.
+
+Each week, Giapetto can acquire all of the needed raw material, but he is only allotted **100 finishing hours** and **80 carpentry hours**. There is an unlimited demand for trains. However, **at most, 40 soldiers are sold** each week.
+
+Giapetto wants to **maximize his weekly profit** (Revenues - Costs). Formulate a mathematical model for Giapetto's situation that can be used to maximize Giapetto's weekly profit."
+
+## Mathematical Model
+
+*This problem's mathematical model is deeply examined in the OR Primer main document. So we will only copy the model.*
+
+\begin{gather}
+\max z = 3x_{1} + 2x_{2} \label{eq:obj.fun} \\
+
+s.t. \nonumber \\
+
+2x_{1} + x_{2} \le 100 \label{eq:finishing.constraint} \\
+x_{1} + x_{2} \le 80 \label{eq:carpentry.constraint}\\
+x_{1} \le 40 \label{eq:demand.constraint}\\
+x_{1},x_{2} \ge 0 \\
+\end{gather}
+
+
+## Code
+
+```{r,message=FALSE}
+library(ROI.plugin.highs)
+library(ompr.roi)
+library(ompr)
+```
+
+```{r, eval=TRUE,cache=TRUE}
+model_obj <- 
+MIPModel() |>
+  add_variable(x1, type = "continuous",lb=0) |>
+  add_variable(x2, type = "continuous",lb=0) |>
+  add_constraint(2*x1 + x2 <= 100) |>
+  add_constraint(x1 + x2 <= 80) |>
+  add_constraint(x1 <= 40) |>
+  set_objective(3*x1 + 2*x2, "max") |>
+  solve_model(with_ROI(solver = "highs",verbose=TRUE)) 
+```
+
+## Results
+
+First let's check the status of the model. 
+
+```{r}
+model_obj |> solver_status()
+```
+
+Then let's get the number of soldiers (x1) and trains (x2) to be produced to get the optimal value.
+
+```{r}
+model_obj |> get_solution(x1)
+model_obj |> get_solution(x2)
+```
+
+Finally let's check the objective function value of the solution.
+
+```{r}
+model_obj |> objective_value()
+```
+
+The optimal solution is to manufacture 20 soldiers and 60 trains to get \$180 net profit. In the following examples, we are going to solve problems with more variables and constraints.
+
+## More Detail
+
+There are also some solver specific outputs as well as model details.
+
+```{r}
+model_obj |> additional_solver_output()
+```

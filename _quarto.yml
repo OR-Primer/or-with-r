@@ -1,0 +1,35 @@
+project:
+  type: book
+  output-dir: docs
+  preview:
+    port: 6615
+
+execute: 
+  message: false
+  warning: false
+  
+book:
+  title: "Operations Research with R"
+  author: "Berk Orbay"
+  date: "2022-10-15"
+  chapters:
+    - part: index.qmd
+      chapters:
+      - setup.qmd
+      - ompr.qmd
+    - part: linprog.qmd
+      chapters:
+      - giapetto.qmd
+    - references.qmd
+    - reproducibility.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+
+

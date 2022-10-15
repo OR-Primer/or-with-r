@@ -1,0 +1,3 @@
+# References and External Examples {.unnumbered}
+
+- [Exploring OMPR with HiGHS solver](https://www.notesofdabbler.com/posts/post_2022_09_11/)

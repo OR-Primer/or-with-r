@@ -1,0 +1,16 @@
+# Introduction {.unnumbered}
+
+This book is the implementation of OR Primer using R and relevant packages such as `ompr` as the AML and `highs` as the solver. Main objective is to give the reader the ropes of the fundamentals of OR programming and to get the reader build their own models easily in R.
+
+This book is focused on implementation before the theory. You can regard excellent (upcoming) external resources on the topics to get higher intuition on theory.
+
+## Other R packages and software
+
+Even though `ompr` is the main package that we interact with, solving LP and MILP problems are possible with the help of other packages and software.
+
++ `highs` is the R package of the main solver HiGHS. (see [CRAN link](https://cran.r-project.org/web/packages/highs/))
++ `ROI` (R Optimization Infrastructure) is an infrastructure package to connect solvers with R counterparts. (see [CRAN link](https://cran.r-project.org/web/packages/ROI/))
++ `ROI.plugin.highs` is the ROI plugin to make ROI work with HiGHS. (see [GitLab link](https://gitlab.com/roigrp/solver/roi.plugin.highs))
++ `ompr.roi` is the bridge between ompr and ROI. (see [CRAN link](https://cran.r-project.org/web/packages/ompr.roi/))
+
+Special thanks to all developers and package maintainers!

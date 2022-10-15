@@ -1,0 +1,149 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Operations Research with R",
+    "section": "",
+    "text": "This book is the implementation of OR Primer using R and relevant packages such as ompr as the AML and highs as the solver. Main objective is to give the reader the ropes of the fundamentals of OR programming and to get the reader build their own models easily in R.\nThis book is focused on implementation before the theory. You can regard excellent (upcoming) external resources on the topics to get higher intuition on theory.\n\n\nEven though ompr is the main package that we interact with, solving LP and MILP problems are possible with the help of other packages and software.\n\nhighs is the R package of the main solver HiGHS. (see CRAN link)\nROI (R Optimization Infrastructure) is an infrastructure package to connect solvers with R counterparts. (see CRAN link)\nROI.plugin.highs is the ROI plugin to make ROI work with HiGHS. (see GitLab link)\nompr.roi is the bridge between ompr and ROI. (see CRAN link)\n\nSpecial thanks to all developers and package maintainers!"
+  },
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "See Knuth (1984) for additional discussion of literate programming.\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "summary.html",
+    "href": "summary.html",
+    "title": "Summary",
+    "section": "",
+    "text": "In summary, this book has no content whatsoever."
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "References and External Examples",
+    "section": "",
+    "text": "Exploring OMPR with HiGHS solver"
+  },
+  {
+    "objectID": "linprog.html",
+    "href": "linprog.html",
+    "title": "Linear Programming",
+    "section": "",
+    "text": "Linear programming (LP) is the fundamental modeling method of Operations Research. But briefly an LP should adhere to the following rules.\n\\[\\begin{gather}\n\\min z = c^\\mathsf{T}x \\\\\nAx = b \\\\\nx \\ge 0  \\\\\n\\end{gather}\\]"
+  },
+  {
+    "objectID": "setup.html",
+    "href": "setup.html",
+    "title": "Setup",
+    "section": "",
+    "text": "# pti is the list of packages to install from CRAN is \npti <- c(\"remotes\",\"ompr.roi\",\"ompr\",\"highs\", \"ROI\")\npti <- pti[!(pti %in% installed.packages())]\nif(length(pti) > 0){\n  install.packages(pti)\n}\n\n# Plus currently ROI.plugin.highs is not listed in CRAN \n# therefore we get it from Gitlab location using remotes package\nif(!(\"ROI.plugin.highs\"%in% installed.packages()))\nremotes::install_gitlab(\"roigrp/solver/roi.plugin.highs\")\n\nWe will need\n\nlibrary(ROI.plugin.highs)\nlibrary(ompr.roi)\nlibrary(ompr)\n\nOptionally, you can get tidyverse and readxl as well for data manipulaton and reading from Excel files respectively.\n\npti <- c(\"tidyverse\",\"readxl\")\npti <- pti[!(pti %in% installed.packages())]\nif(length(pti) > 0){\n  install.packages(pti)\n}"
+  },
+  {
+    "objectID": "giapetto.html",
+    "href": "giapetto.html",
+    "title": "1  Giapetto Example",
+    "section": "",
+    "text": "This example is taken from Winston’s Operations Research (4th Edition) Book\n“Giapetto’s Woodcarving, Inc., manufactures two types of wooden toys: soldiers and trains.\nA soldier sells for $27 and uses $10 worth of raw materials. Each soldier that is manufactured increases Giapetto’s variable labor and overhead costs by $14. A train sells for $21 and uses $9 worth of raw materials. Each train built increases Giapetto’s variable labor and overhead costs by $10.\nThe manufacture of wooden soldiers and trains requires two types of skilled labor: carpentry and finishing. A soldier requires 2 hours of finishing labor and 1 hour of carpentry labor. A train requires 1 hour of finishing labor and 1 hour of carpentry labor.\nEach week, Giapetto can acquire all of the needed raw material, but he is only allotted 100 finishing hours and 80 carpentry hours. There is an unlimited demand for trains. However, at most, 40 soldiers are sold each week.\nGiapetto wants to maximize his weekly profit (Revenues - Costs). Formulate a mathematical model for Giapetto’s situation that can be used to maximize Giapetto’s weekly profit.”"
+  },
+  {
+    "objectID": "giapetto.html#mathematical-model",
+    "href": "giapetto.html#mathematical-model",
+    "title": "1  Giapetto Example",
+    "section": "1.2 Mathematical Model",
+    "text": "1.2 Mathematical Model\nThis problem’s mathematical model is deeply examined in the OR Primer main document. So we will only copy the model.\n\\[\\begin{gather}\n\\max z = 3x_{1} + 2x_{2} \\label{eq:obj.fun} \\\\\n\ns.t. \\nonumber \\\\\n\n2x_{1} + x_{2} \\le 100 \\label{eq:finishing.constraint} \\\\\nx_{1} + x_{2} \\le 80 \\label{eq:carpentry.constraint}\\\\\nx_{1} \\le 40 \\label{eq:demand.constraint}\\\\\nx_{1},x_{2} \\ge 0 \\\\\n\\end{gather}\\]"
+  },
+  {
+    "objectID": "giapetto.html#code",
+    "href": "giapetto.html#code",
+    "title": "1  Giapetto Example",
+    "section": "1.3 Code",
+    "text": "1.3 Code\n\nlibrary(ROI.plugin.highs)\nlibrary(ompr.roi)\nlibrary(ompr)\n\n\nmodel_obj <- \nMIPModel() |>\n  add_variable(x1, type = \"continuous\",lb=0) |>\n  add_variable(x2, type = \"continuous\",lb=0) |>\n  add_constraint(2*x1 + x2 <= 100) |>\n  add_constraint(x1 + x2 <= 80) |>\n  add_constraint(x1 <= 40) |>\n  set_objective(3*x1 + 2*x2, \"max\") |>\n  solve_model(with_ROI(solver = \"highs\",verbose=TRUE)) \n\n<SOLVER MSG>  ----\nWARNING: No semi-integer/integer variables in model with non-empty integrality\n\nPresolving model\n\n2 rows, 2 cols, 4 nonzeros\n\n2 rows, 2 cols, 4 nonzeros\n\nPresolve : Reductions: rows 2(-1); columns 2(-0); elements 4(-1)\n\nSolving the presolved LP\n\nUsing EKK dual simplex solver - serial\n\n  Iteration        Objective     Infeasibilities num(sum)\n\n          0    -1.9999937513e+00 Ph1: 2(2); Du: 1(1.99999) 0s\n\n          2    -1.8000000000e+02 Pr: 0(0) 0s\n\nSolving the original LP from the solution after postsolve\n\nModel   status      : Optimal\n\nSimplex   iterations: 2\n\nObjective value     :  1.8000000000e+02\n\nHiGHS run time      :          0.00\n\n<!SOLVER MSG> ----"
+  },
+  {
+    "objectID": "linprog.html#special-commands",
+    "href": "linprog.html#special-commands",
+    "title": "Linear Programming",
+    "section": "Special commands",
+    "text": "Special commands\nIn ompr, we start by defining the model with MIPModel()\n\nadd_variable is used to add"
+  },
+  {
+    "objectID": "ompr.html",
+    "href": "ompr.html",
+    "title": "ompr Fundamentals",
+    "section": "",
+    "text": "This document is prepared as both a quick introduction and future reference (or cheat sheet) for the ompr package. Full documentation can be found in here."
+  },
+  {
+    "objectID": "ompr.html#special-commands",
+    "href": "ompr.html#special-commands",
+    "title": "ompr",
+    "section": "Special commands",
+    "text": "Special commands\nIn ompr, we start by defining the model with MIPModel()\n\nadd_variable is used to add"
+  },
+  {
+    "objectID": "ompr.html#fundamental-commands",
+    "href": "ompr.html#fundamental-commands",
+    "title": "ompr Package",
+    "section": "Fundamental commands",
+    "text": "Fundamental commands\n\nModel building\nIn ompr, we start by defining the model with MIPModel(). Then we will append a combination of the below commands with either one of the pipes %>% or |> (for the sake of consistency we will use only one pipe type in a single code block).\n\nadd_variable is used to add the variables. Its properties are type (“continuous”,“binary” or “integer”), ub (upper bound), lb (lower bound). It is possible to add index to the variable. (see reference)\n\nFor instance, add_variable(x[i],i=1:10) will create a set of 10 decision variables.\nIt is also possible to have multiple dimensions. add_variable(x[i,j],i=1:10, j=1:3) will create a set of 30 decision variables.\n\nadd_constraint is used to add constraints. It is possible to add expressions directly (e.g., 2x + y <= 5). It is also possible to add indices for repetitions of the constraint. (see reference)\nset_objective is used to set the objective function and its direction (or sense). Objective function can be directly written as an expression. Sense should be either \"max\" or \"min\". (see reference)\n\n\n\nSolving\nAfter defining the model we solve the model with solve_model() command. We can define a solver. In this document, we will use HiGHS solver. Therefore command will be solve_model(with_ROI(solver = \"highs\",verbose=TRUE)) most of the time.\n\n\nGetting results\nIf the model is run successfully we will get a response. Let’s assume we store model response in model_obj variable. Then we will be able to query the model for results.\n\nmodel_obj |> get_solution(x1) will get the value of x1."
+  },
+  {
+    "objectID": "ompr.html#model-building",
+    "href": "ompr.html#model-building",
+    "title": "ompr Fundamentals",
+    "section": "Model building",
+    "text": "Model building\nIn ompr, we start by defining the model with MIPModel(). Then we will append a combination of the below commands with either one of the pipes %>% or |> (for the sake of consistency we will use only one pipe type in a single code block).\n\nadd_variable is used to add the variables. Its properties are type (“continuous”,“binary” or “integer”), ub (upper bound), lb (lower bound). It is possible to add index to the variable. (see reference)\n\nFor instance, add_variable(x[i],i=1:10) will create a set of 10 decision variables.\nIt is also possible to have multiple dimensions. add_variable(x[i,j],i=1:10, j=1:3) will create a set of 30 decision variables.\n\nadd_constraint is used to add constraints. It is possible to add expressions directly (e.g., 2x + y <= 5). It is also possible to add indices for repetitions of the constraint. (see reference)\nset_objective is used to set the objective function and its direction (or sense). Objective function can be directly written as an expression. Sense should be either \"max\" or \"min\". (see reference)"
+  },
+  {
+    "objectID": "ompr.html#solving",
+    "href": "ompr.html#solving",
+    "title": "ompr Fundamentals",
+    "section": "Solving",
+    "text": "Solving\nAfter defining the model we solve the model with solve_model() command. We can define a solver. In this document, we will use HiGHS solver. Therefore command will be solve_model(with_ROI(solver = \"highs\",verbose=TRUE)) most of the time."
+  },
+  {
+    "objectID": "ompr.html#getting-results",
+    "href": "ompr.html#getting-results",
+    "title": "ompr Fundamentals",
+    "section": "Getting results",
+    "text": "Getting results\nIf the model is run successfully we will get a response. Let’s assume we store model response in model_obj variable. Then we will be able to query the model for results.\n\nmodel_obj |> solver_status() will return “infeasible”, “optimal/success”, “unbounded”, “userlimit” or “error” (see reference)\nmodel_obj |> get_solution(x1) will get the value of x1. (see reference)\nmodel_obj |> objective_value() will get the objective function value. (see reference)"
+  },
+  {
+    "objectID": "ompr.html#other-packages",
+    "href": "ompr.html#other-packages",
+    "title": "ompr Package",
+    "section": "Other packages",
+    "text": "Other packages\nEven though ompr is the main package that we interact with, solving LP and MILP problems are possible with the help of other packages and software.\n\nhighs is the R package of the main solver HiGHS.\nROI (R Optimization Infrastructure) is an infrastructure package to connect solvers with R counterparts.\nROI.plugin.highs is the ROI plugin to make ROI work with HiGHS.\nompr.roi is the bridge between ompr and ROI."
+  },
+  {
+    "objectID": "giapetto.html#results",
+    "href": "giapetto.html#results",
+    "title": "1  Giapetto Example",
+    "section": "1.4 Results",
+    "text": "1.4 Results\nFirst let’s check the status of the model.\n\nmodel_obj |> solver_status()\n\n[1] \"success\"\n\n\nThen let’s get the number of soldiers (x1) and trains (x2) to be produced to get the optimal value.\n\nmodel_obj |> get_solution(x1)\n\nx1 \n20 \n\nmodel_obj |> get_solution(x2)\n\nx2 \n60 \n\n\nFinally let’s check the objective function value of the solution.\n\nmodel_obj |> objective_value()\n\n[1] 180\n\n\nThe optimal solution is to manufacture 20 soldiers and 60 trains to get $180 net profit. In the following examples, we are going to solve problems with more variables and constraints."
+  },
+  {
+    "objectID": "giapetto.html#more-detail",
+    "href": "giapetto.html#more-detail",
+    "title": "1  Giapetto Example",
+    "section": "1.5 More Detail",
+    "text": "1.5 More Detail\nThere are also some solver specific outputs as well as model details.\n\nmodel_obj |> additional_solver_output()\n\n$ROI\n$ROI$status\n$ROI$status$code\n[1] 0\n\n$ROI$status$msg\n  solver highs\n    code 7\n  symbol OPTIMAL\n message Optimal\nroi_code 0\n\n\n$ROI$message\n$ROI$message$primal_solution\n[1] 20 60\n\n$ROI$message$objective_value\n[1] 180\n\n$ROI$message$status\n[1] 7\n\n$ROI$message$status_message\n[1] \"Optimal\"\n\n$ROI$message$solver_msg\n$ROI$message$solver_msg$value_valid\n[1] TRUE\n\n$ROI$message$solver_msg$dual_valid\n[1] TRUE\n\n$ROI$message$solver_msg$col_value\n[1] 20 60\n\n$ROI$message$solver_msg$col_dual\n[1] 0 0\n\n$ROI$message$solver_msg$row_value\n[1] 100  80  20\n\n$ROI$message$solver_msg$row_dual\n[1] 1 1 0\n\n\n$ROI$message$info\n$ROI$message$info$valid\n[1] TRUE\n\n$ROI$message$info$mip_node_count\n[1] -1\n\n$ROI$message$info$simplex_iteration_count\n[1] 2\n\n$ROI$message$info$ipm_iteration_count\n[1] 0\n\n$ROI$message$info$qp_iteration_count\n[1] 0\n\n$ROI$message$info$crossover_iteration_count\n[1] 0\n\n$ROI$message$info$primal_solution_status\n[1] \"Feasible\"\n\n$ROI$message$info$dual_solution_status\n[1] \"Feasible\"\n\n$ROI$message$info$basis_validity\n[1] 1\n\n$ROI$message$info$objective_function_value\n[1] 180\n\n$ROI$message$info$mip_dual_bound\n[1] 0\n\n$ROI$message$info$mip_gap\n[1] Inf\n\n$ROI$message$info$num_primal_infeasibilities\n[1] 0\n\n$ROI$message$info$max_primal_infeasibility\n[1] 0\n\n$ROI$message$info$sum_primal_infeasibilities\n[1] 0\n\n$ROI$message$info$num_dual_infeasibilities\n[1] 0\n\n$ROI$message$info$max_dual_infeasibility\n[1] 0\n\n$ROI$message$info$sum_dual_infeasibilities\n[1] 0\n\n\n$ROI$message$objval\n[1] 180"
+  },
+  {
+    "objectID": "reproducibility.html",
+    "href": "reproducibility.html",
+    "title": "Reproducibility",
+    "section": "",
+    "text": "_                           \nplatform       aarch64-apple-darwin20      \narch           aarch64                     \nos             darwin20                    \nsystem         aarch64, darwin20           \nstatus                                     \nmajor          4                           \nminor          1.2                         \nyear           2021                        \nmonth          11                          \nday            01                          \nsvn rev        81115                       \nlanguage       R                           \nversion.string R version 4.1.2 (2021-11-01)\nnickname       Bird Hippie"
+  },
+  {
+    "objectID": "reproducibility.html#package-versions",
+    "href": "reproducibility.html#package-versions",
+    "title": "Reproducibility",
+    "section": "Package Versions",
+    "text": "Package Versions\n\n\n           Package Version\n1            highs   0.1-4\n2             ompr   1.0.3\n3         ompr.roi   1.0.1\n4          remotes   2.4.2\n5              ROI   1.0-0\n6 ROI.plugin.highs   1.0-0"
+  }
+]

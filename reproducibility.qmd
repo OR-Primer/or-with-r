@@ -1,0 +1,22 @@
+# Reproducibility {.unnumbered}
+
+## R Version
+
+```{r,echo=FALSE}
+version
+```
+
+## Package Versions
+
+```{r,echo=FALSE}
+df <- as.data.frame(installed.packages())
+df2 <- df[
+    as.vector(df$Package) %in% 
+    c("remotes","ompr.roi","ompr","highs", "ROI","ROI.plugin.highs"),
+    c("Package","Version")
+    ]
+rownames(df2) <- NULL
+df2
+```
+
+

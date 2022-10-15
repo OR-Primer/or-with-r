@@ -1,0 +1,19 @@
+# Linear Programming {.unnumbered}
+
+Linear programming (LP) is the fundamental modeling method of Operations Research. But briefly an LP should adhere to the following rules.
+
+- **Neither** constraints **nor** the objective function may contain non-linear terms.
+- Decision variables are all **continuous**. They **may not** be *binary* or *integer*.
+- Decision variables can be either non-negative ($x \ge 0$) or unrestricted (**urs**).
+
+\begin{gather}
+\min z = c^\mathsf{T}x \\
+Ax = b \\ 
+x \ge 0  \\
+\end{gather}
+
+## Special commands
+
+In `ompr`, we start by defining the model with `MIPModel()`
+
++ `add_variable` is used to add 
